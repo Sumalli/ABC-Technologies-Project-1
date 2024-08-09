@@ -1,0 +1,93 @@
+
+pipeline {
+    agent {
+        label 'ubuntu-server'
+    }
+     environment {
+        DOCKERHUB_CREDS ='DockerCredentials'
+        DOCKERHUB_REPO ='mallieswari/abc-technologies-cicd:latest'
+       
+    }
+
+    triggers
+    {
+        pollSCM 'H * * * *'
+    }
+    tools {
+        maven 'Apache_Maven'
+    }
+    
+    stages {
+        stage('Checkout'){
+steps{
+checkout scmGit(branches: [[name: '*/main']], extensions: [],
+userRemoteConfigs: [[url:'https://github.com/Sumalli/ABC-Technologies-Project-1.git']])
+}
+}
+
+stage('Print Workspace Directory'){
+steps{
+script {
+echo "Workspace Directory: ${workspace}"
+}
+}
+}
+
+        stage('Compile') {
+            steps {
+                git 'https://github.com/Sumalli/ABC-Technologies-Project-1.git'
+                sh 'mvn compile'
+            }
+        }
+
+        stage('Unit Testing') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/target/*.war', followSymlinks: false
+                }
+            }
+        }
+
+        stage('Clean and Install') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+stage('Build Docker Image')
+       {
+         steps {
+                 script {
+                    dir('/root/ABC-Technologies-Project-1') {
+                    sh 'docker build -t mallieswari/abc-technologies-cicd:latest -f /root/ABC-Technologies-Project-1/Dockerfile . '
+                    }
+                }
+				}
+		}
+ stage('Push'){
+       steps{
+         script{
+           withCredentials([usernamePassword(credentialsId: "$DOCKERHUB_CREDS", passwordVariable: 'DOCKERHUB_PASS', usernameVariable: 'DOCKERHUB_USER')]) {
+           sh "echo \$DOCKERHUB_PASS | docker login -u \$DOCKERHUB_USER --password-stdin"
+           sh 'docker push $DOCKERHUB_REPO'				
+	        
+}
+}
+}
+}
+}
+}
+

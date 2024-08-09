@@ -1,0 +1,37 @@
+---
+- hosts: localhost
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Build an image and push it to a private repo
+      community.docker.docker_image:
+        build:
+          path: "/root/ABC-Technologies-Project-1"
+        name: docker.io/mallieswari/abc-technologies-cicd
+        tag: latest
+        push: true
+        source: build
+      register: build_image_out
+
+    - debug:
+        var: build_image_out
+
+    - name: Start a container
+      community.docker.docker_container:
+        name: abc-tech-container
+        image: mallieswari/abc-technologies-cicd
+        state: started
+        ports:
+          - 8090:8080
+        # restart: true
+      register: build_container_out
+
+    - debug:
+        var: build_container_out
+
+    - debug:
+        var: out
+
+ 
+
+
