@@ -20,8 +20,8 @@ spec:
         app: abc-tech-app
     spec:
       containers:
-      - image: mallieswari/abc-technologies-cicd
-        name: app
+        - name: app
+          image: mallieswari/abc-technologies-cicd
 
 ---
 kind: Service
@@ -31,4 +31,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: abc
+    app: abc-tech-app
+  ports:
+    - port: 80          # Cluster port
+      targetPort: 8090  # Container image port
