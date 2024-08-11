@@ -41,7 +41,11 @@
 
     - debug:
         var: build_container_out
-
+        
+    - name: Create a Deployment by reading the definition from a local file
+      command: "kubectl --kubeconfig=/root/.kube/config apply -f deployment.yaml"
+      register: out
+  
     - debug:
         var: out
 
