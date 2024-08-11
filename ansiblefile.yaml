@@ -2,7 +2,7 @@
 - hosts: localhost
   become: yes
   gather_facts: true
-   vars:
+  vars:
     dockerhub_username: "{{ lookup('env', 'DOCKERHUB_USER') }}"
     dockerhub_password: "{{ lookup('env', 'DOCKERHUB_PASS') }}"
   tasks:
@@ -13,42 +13,42 @@
         reauthorize: yes
       register: login_out
 
-    - debug:
+    - name: Debug DockerHub login output
+      debug:
         var: login_out
         
-    - name: Build an image and push it to a private repo
+    - name: Build and push Docker image
       community.docker.docker_image:
         build:
           path: .
         name: docker.io/mallieswari/abc-technologies-cicd
         tag: latest
-        push: true
+        push: yes
         source: build
       register: build_image_out
 
-    - debug:
+    - name: Debug Docker image build output
+      debug:
         var: build_image_out
 
-    - name: Start a container
+    - name: Start a Docker container
       community.docker.docker_container:
         name: abc-tech-container
-        image: mallieswari/abc-technologies-cicd
+        image: mallieswari/abc-technologies-cicd:latest
         state: started
         ports:
-          - 8090:8080
-        # restart: true
+          - "8090:8080"
+        # restart: yes
       register: build_container_out
 
-    - debug:
+    - name: Debug Docker container output
+      debug:
         var: build_container_out
         
-    - name: Create a Deployment by reading the definition from a local file
+    - name: Create a Kubernetes Deployment from local file
       command: "kubectl --kubeconfig=/root/.kube/config apply -f deployment.yaml"
-      register: out
-  
-    - debug:
-        var: out
+      register: kubectl_out
 
- 
-
-
+    - name: Debug Kubernetes deployment output
+      debug:
+        var: kubectl_out
