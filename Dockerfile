@@ -13,7 +13,7 @@ RUN mv /tmp/apache-tomcat-10.1.28 /opt/tomcat
 COPY target/ABCtechnologies-1.0.war  /opt/tomcat/webapps/
 
 # Expose the port Tomcat runs on
-EXPOSE 8080
+EXPOSE 8090
 
 # Start Tomcat
 CMD ["/opt/tomcat/bin/catalina.sh", "run"]
