@@ -33,5 +33,5 @@ spec:
   selector:
     app: abc-tech-app
   ports:
-    - port: 90          # Cluster port
-      targetPort: 8090  # Container image port
+    - port: 80          # Cluster port
+      targetPort: 8080  # Container image port
